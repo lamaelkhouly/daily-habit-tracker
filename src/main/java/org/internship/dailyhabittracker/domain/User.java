@@ -1,0 +1,34 @@
+package org.internship.dailyhabittracker.domain;
+
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Entity
+@Table(name = "USER")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name ="ID",nullable = false)
+    private Long id;
+    @Column(name ="USERNAME",nullable = false, length = 100)
+    private String userName;
+    @Column(name ="PASSWORD",nullable = false, length = 100)
+    private String password;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ROLE" ,nullable = false, length = 30)
+    private Role role;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<Habit> habits;
+
+
+
+}
