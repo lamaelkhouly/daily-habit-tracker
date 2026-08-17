@@ -1,15 +1,17 @@
 package org.internship.dailyhabittracker.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
-@Table(name= "HABIT")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Habit {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name ="ID",nullable = false, unique = true)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "userId",nullable = false)
+    private User user;
 }
