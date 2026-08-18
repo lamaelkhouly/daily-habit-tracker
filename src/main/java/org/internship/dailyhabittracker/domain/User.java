@@ -25,6 +25,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "ROLE" ,nullable = false, length = 30)
     private Role role;
+    @Column(name = "isActive")
+    private boolean isActive;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Habit> habits;
