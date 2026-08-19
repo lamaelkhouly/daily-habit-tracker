@@ -1,11 +1,9 @@
-package org.internship.dailyhabittracker.domain;
+package org.internship.dailyhabittracker.domain.depricated;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Data
@@ -13,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "HABIT")
 public class Habit {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name ="ID",nullable = false, unique = true)

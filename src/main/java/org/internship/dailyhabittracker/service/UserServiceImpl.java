@@ -1,15 +1,14 @@
 package org.internship.dailyhabittracker.service;
 
 import lombok.RequiredArgsConstructor;
-import org.internship.dailyhabittracker.domain.Role;
-import org.internship.dailyhabittracker.domain.User;
+import org.internship.dailyhabittracker.domain.depricated.Role;
+import org.internship.dailyhabittracker.domain.depricated.User;
 import org.internship.dailyhabittracker.dto.UserRequest;
 import org.internship.dailyhabittracker.dto.UserResponse;
 import org.internship.dailyhabittracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

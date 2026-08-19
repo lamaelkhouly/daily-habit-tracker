@@ -1,4 +1,4 @@
-package org.internship.dailyhabittracker.domain;
+package org.internship.dailyhabittracker.domain.depricated;
 
 public enum Category {
     HEALTH,
@@ -9,7 +9,5 @@ public enum Category {
     SOCIAL,
     SPIRITUALITY,
     HOBBY,
-    SELF_CARE,
-    OTHER
-
+    SELF_CARE
 }

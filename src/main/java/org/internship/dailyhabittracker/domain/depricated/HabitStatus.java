@@ -1,4 +1,4 @@
-package org.internship.dailyhabittracker.domain;
+package org.internship.dailyhabittracker.domain.depricated;
 
 public enum HabitStatus {
     ACTIVE,
