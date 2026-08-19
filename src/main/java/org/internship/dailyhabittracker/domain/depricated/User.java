@@ -1,4 +1,4 @@
-package org.internship.dailyhabittracker.domain;
+package org.internship.dailyhabittracker.domain.depricated;
 
 
 import jakarta.persistence.*;
