@@ -6,8 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class DailyHabitTrackerApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(DailyHabitTrackerApplication.class, args);
-    }
+    public static void main(String[] args) {SpringApplication.run(DailyHabitTrackerApplication.class, args);}
 
 }
