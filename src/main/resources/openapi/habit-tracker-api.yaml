@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: Daily Habit Tracker API
+  description: Contract-first API for the Daily Habit Tracker application.
+  version: 1.0.0
+servers:
+  - url: /api
+
+tags:
+  - name: Auth
+    description: Registration and login
+  - name: Habits
+    description: Habit CRUD, completion tracking, progress
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      operationId: registerUser
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Username or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: loginUser
+      summary: Authenticate and obtain a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /habits:
+    get:
+      tags: [Habits]
+      operationId: getHabits
+      summary: List habits for the current user (search, filter, paginate, sort)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          description: Filter by habit name (partial match)
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            $ref: '#/components/schemas/HabitCategory'
+        - name: completedToday
+          in: query
+          description: Filter by whether the habit was completed today
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: sort
+          in: query
+          description: "Sort field and direction, e.g. name,asc"
+          schema:
+            type: string
+            default: "createdAt,desc"
+      responses:
+        '200':
+          description: Paged list of habits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedHabitResponse'
+    post:
+      tags: [Habits]
+      operationId: createHabit
+      summary: Create a new habit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitRequest'
+      responses:
+        '201':
+          description: Habit created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /habits/{habitId}:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      tags: [Habits]
+      operationId: getHabitById
+      summary: Get a single habit by id
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Habit found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '404':
+          description: Habit not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags: [Habits]
+      operationId: updateHabit
+      summary: Update an existing habit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitRequest'
+      responses:
+        '200':
+          description: Habit updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '404':
+          description: Habit not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Habits]
+      operationId: deleteHabit
+      summary: Delete a habit
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Habit deleted
+        '404':
+          description: Habit not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /habits/{habitId}/complete:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    post:
+      tags: [Habits]
+      operationId: completeHabit
+      summary: Mark a habit as completed for a given day (defaults to today)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+      responses:
+        '200':
+          description: Habit marked complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '404':
+          description: Habit not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /habits/{habitId}/progress:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      tags: [Habits]
+      operationId: getHabitProgress
+      summary: View progress for a habit over a period
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProgressPeriod'
+            default: WEEKLY
+      responses:
+        '200':
+          description: Progress summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressResponse'
+        '404':
+          description: Habit not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+          maxLength: 100
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+        username:
+          type: string
+        role:
+          type: string
+
+    HabitCategory:
+      type: string
+      enum: [HEALTH, FITNESS, PRODUCTIVITY, MINDFULNESS, LEARNING, OTHER]
+
+    ProgressPeriod:
+      type: string
+      enum: [DAILY, WEEKLY, MONTHLY]
+
+    HabitRequest:
+      type: object
+      required: [name, category]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        category:
+          $ref: '#/components/schemas/HabitCategory'
+
+    HabitResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/HabitCategory'
+        createdAt:
+          type: string
+          format: date-time
+        completedToday:
+          type: boolean
+        currentStreak:
+          type: integer
+          format: int32
+
+    PagedHabitResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/HabitResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    CompletionRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Defaults to today if omitted
+
+    ProgressResponse:
+      type: object
+      properties:
+        habitId:
+          type: integer
+          format: int64
+        period:
+          $ref: '#/components/schemas/ProgressPeriod'
+        totalCompletions:
+          type: integer
+        expectedDays:
+          type: integer
+        completionRate:
+          type: number
+          format: double
+        completedDates:
+          type: array
+          items:
+            type: string
+            format: date
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
